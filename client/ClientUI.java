@@ -1,5 +1,4 @@
 package client;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -7,17 +6,18 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import protocal.Protocal;
 
 public class ClientUI extends javax.swing.JFrame
 {
 	/**
-	 * @author ZyL
-	 * 客户端的UI，按键监听类为ServerUIListener
+	 * @author ZyL 客户端的UI，按键监听类为ServerUIListener
 	 */
 	{
 		// Set Look & Feel
@@ -31,13 +31,8 @@ public class ClientUI extends javax.swing.JFrame
 	}
 	static JTextField jTextField_send;
 	static JScrollPane jScrollPane1;
-
-	static JTextArea jTextArea1_message;
-
-	static JButton jButton1_send;
-
-
-	private Client client;
+	static JTextField jTextField1_myPhoneNum;
+	private JLabel jLabel1;
 	/**
 	 * Auto-generated main method to display this JFrame
 	 */
@@ -53,6 +48,12 @@ public class ClientUI extends javax.swing.JFrame
 			}
 		});
 	}
+	private JLabel jLabel1_phoneNum;
+	private JTextField jTextField1_phoneNum;
+	static JTextArea jTextArea1_message;
+	static JButton jButton1_send;
+
+	private Client client;
 	public ClientUI()
 	{
 		super();
@@ -74,7 +75,12 @@ public class ClientUI extends javax.swing.JFrame
 	{
 		return jTextField_send;
 	}
-
+	private void sendMessage()
+	{
+		String str = jTextField_send.getText();
+		jTextField_send.setText("");
+		client.sendMessage(Protocal.WHISPER+Protocal.PHONE_NUM+jTextField1_myPhoneNum.getText()+"&"+jTextField1_phoneNum.getText()+Protocal.MSG+str);
+	}
 	private void initGUI()
 	{
 		try
@@ -102,6 +108,30 @@ public class ClientUI extends javax.swing.JFrame
 					jTextArea1_message.setBounds(10, 20, 299, 180);
 				}
 			}
+			{
+				jTextField1_phoneNum = new JTextField();
+				getContentPane().add(jTextField1_phoneNum);
+				jTextField1_phoneNum.setText("654321");
+				jTextField1_phoneNum.setBounds(382, 101, 42, 21);
+			}
+			{
+				jLabel1_phoneNum = new JLabel();
+				getContentPane().add(jLabel1_phoneNum);
+				jLabel1_phoneNum.setBounds(324, 104, 48, 15);
+				jLabel1_phoneNum.setText("\u5bf9\u65b9\u7535\u8bdd");
+			}
+			{
+				jTextField1_myPhoneNum = new JTextField();
+				getContentPane().add(jTextField1_myPhoneNum);
+				jTextField1_myPhoneNum.setText("111111");
+				jTextField1_myPhoneNum.setBounds(382, 26, 42, 21);
+			}
+			{
+				jLabel1 = new JLabel();
+				getContentPane().add(jLabel1);
+				jLabel1.setBounds(324, 27, 48, 19);
+				jLabel1.setText("\u6211\u7684\u7535\u8bdd");
+			}
 //			pack();
 			this.setSize(464, 324);
 			client = new Client();
@@ -111,21 +141,18 @@ public class ClientUI extends javax.swing.JFrame
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					String str = jTextField_send.getText();
-					jTextField_send.setText("");
-					client.sendMessage(str);
+					sendMessage();
 				}
+
 			});
 			jTextField_send.addKeyListener(new KeyAdapter()
 			{
 				@Override
 				public void keyPressed(KeyEvent e)
 				{
-					if(e.getKeyCode() == KeyEvent.VK_ENTER)
+					if (e.getKeyCode() == KeyEvent.VK_ENTER)
 					{
-						String str = jTextField_send.getText();
-						jTextField_send.setText("");
-						client.sendMessage(str);
+						sendMessage();
 					}
 				}
 			});
@@ -137,7 +164,8 @@ public class ClientUI extends javax.swing.JFrame
 					super.windowClosed(e);
 					client.sendMessage("over");
 					client.close();
-					System.exit(0);				}
+					System.exit(0);
+				}
 			});
 			this.setVisible(true);
 			this.setLocationRelativeTo(null);

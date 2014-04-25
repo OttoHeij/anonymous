@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Vector;
+import protocal.Protocal;
 
 public class Server
 {
@@ -115,11 +116,21 @@ public class Server
 				pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "utf-8"), true);
 				br = new BufferedReader(new InputStreamReader(s.getInputStream(), "utf-8"));
 				ip = s.getInetAddress().getHostAddress();
-				String string = ip+"进入了房间,总人数"+vec.size()+"只";
-				ServerUI.jTextArea1_message.append(string+"\r\n");
-				pw.println("成功连接到服务器,你的ip：" + ip);
+				String tmpStr = br.readLine();
+				System.out.println(tmpStr);
+				if (tmpStr != null)
+				{
+					String phoneNum = tmpStr.substring(tmpStr.indexOf(Protocal.PHONE_NUM) + Protocal.PHONE_NUM.length());
+					System.out.println(phoneNum);
+					if (phoneNum.matches("\\d+"))
+					{
+						pw.println(Protocal.WHISPER+Protocal.PHONE_NUM + phoneNum + Protocal.MSG + "成功连接到服务器,你的ip：" + ip);
+					}
+				}
+				String string = ip + "进入了房间,总人数" + vec.size() + "只";
+				ServerUI.jTextArea1_message.append(string + "\r\n");
 //				pw.println(string);
-				broadcast(ip+"进入了房间,总人数"+vec.size()+"个");
+				broadcast(Protocal.BROADCAST + Protocal.MSG + string);
 				String str = null;
 				while (true)
 				{
@@ -129,8 +140,8 @@ public class Server
 						{
 							vec.remove(s);
 							String msg = ip + "离开了房间," + "还有" + vec.size() + "只";
-							ServerUI.jTextArea1_message.append(msg+"\r\n");
-							broadcast(msg);
+							ServerUI.jTextArea1_message.append(msg + "\r\n");
+							broadcast(Protocal.BROADCAST + Protocal.MSG + msg);
 							br.close();
 							s.close();
 							pw.close();
