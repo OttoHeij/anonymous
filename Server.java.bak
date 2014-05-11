@@ -127,7 +127,7 @@ public class Server
 						pw.println(Protocal.WHISPER+Protocal.PHONE_NUM + phoneNum + Protocal.MSG + "成功连接到服务器,你的ip：" + ip);
 					}
 				}
-				String string = ip + "进入了房间,总人数" + vec.size() + "个";
+				String string = ip + "进入了房间,总人数" + vec.size() + "只";
 				ServerUI.jTextArea1_message.append(string + "\r\n");
 //				pw.println(string);
 				broadcast(Protocal.BROADCAST + Protocal.MSG + string);
@@ -139,7 +139,7 @@ public class Server
 						if (str.equals("over"))
 						{
 							vec.remove(s);
-							String msg = ip + "离开了房间," + "还有" + vec.size() + "个";
+							String msg = ip + "离开了房间," + "还有" + vec.size() + "只";
 							ServerUI.jTextArea1_message.append(msg + "\r\n");
 							broadcast(Protocal.BROADCAST + Protocal.MSG + msg);
 							br.close();
@@ -171,7 +171,7 @@ public class Server
 				try
 				{
 					// if (Server.this.ss != null)// /
-					// 一关闭ss.accpet()就抛SocketisClosed
+					// 巨坑~~~千万不要关闭，一关闭ss.accpet()就抛SocketisClosed
 					// ss.close();
 					if (s != null)
 						s.close();
