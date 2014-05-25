@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import javax.swing.JOptionPane;
-import protocal.Protocal;
+import protocal.Protocol;
 
 public class Client implements Runnable
 {
@@ -42,24 +42,24 @@ public class Client implements Runnable
 			pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "utf-8"), true);
 			br = new BufferedReader(new InputStreamReader(s.getInputStream(), "utf-8"));
 			String str = null;
-			pw.println(Protocal.PHONE_NUM + phonenum);
+			pw.println(Protocol.PHONE_NUM + phonenum);
 			while ((str = br.readLine()) != null)
 			{
-				if (str.startsWith(Protocal.BROADCAST))
+				if (str.startsWith(Protocol.BROADCAST))
 				{
-					String tmpStr = str.substring(str.indexOf(Protocal.MSG) + Protocal.MSG.length());
+					String tmpStr = str.substring(str.indexOf(Protocol.MSG) + Protocol.MSG.length());
 					ClientUI.jTextArea1_message.append(tmpStr + "\r\n");
-				} else if (str.startsWith(Protocal.WHISPER))
+				} else if (str.startsWith(Protocol.WHISPER))
 				{
-					int num = str.indexOf(Protocal.PHONE_NUM) + Protocal.PHONE_NUM.length();
-					int num2 = str.indexOf(Protocal.MSG);
+					int num = str.indexOf(Protocol.PHONE_NUM) + Protocol.PHONE_NUM.length();
+					int num2 = str.indexOf(Protocol.MSG);
 					String phoneNums1 = str.substring(num, num2);
 					String phoneNums2[] = phoneNums1.split("&");
 					for (int i = 0; i < phoneNums2.length; i++)
 					{
 						if (phoneNums2[i].equals(phonenum))
 						{
-							String msg = str.substring(num2+Protocal.MSG.length()) + "\r\n";
+							String msg = str.substring(num2+Protocol.MSG.length()) + "\r\n";
 							if(phoneNums2.length != 1)
 							{
 								msg = phoneNums2[0]+" : " + msg;

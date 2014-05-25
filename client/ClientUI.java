@@ -12,7 +12,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import protocal.Protocal;
+import protocal.Protocol;
 
 public class ClientUI extends javax.swing.JFrame
 {
@@ -79,7 +79,7 @@ public class ClientUI extends javax.swing.JFrame
 	{
 		String str = jTextField_send.getText();
 		jTextField_send.setText("");
-		client.sendMessage(Protocal.WHISPER+Protocal.PHONE_NUM+jTextField1_myPhoneNum.getText()+"&"+jTextField1_phoneNum.getText()+Protocal.MSG+str);
+		client.sendMessage(Protocol.WHISPER+Protocol.PHONE_NUM+jTextField1_myPhoneNum.getText()+"&"+jTextField1_phoneNum.getText()+Protocol.MSG+str);
 	}
 	private void initGUI()
 	{

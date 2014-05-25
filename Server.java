@@ -4,12 +4,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Vector;
-import protocal.Protocal;
+import protocal.Protocol;
 
 public class Server
 {
@@ -20,11 +19,13 @@ public class Server
 	 */
 	private ServerSocket ss;
 	private Vector<Socket> vec;
+	private Vector<User> vec_u;
 	private PrintWriter pw_temp;
 
 	public Server()
 	{
 		vec = new Vector<Socket>();
+		vec_u = new Vector<User>();
 		try
 		{
 			ss = new ServerSocket(10000);
@@ -118,19 +119,23 @@ public class Server
 				ip = s.getInetAddress().getHostAddress();
 				String tmpStr = br.readLine();
 				System.out.println(tmpStr);
+				String phoneNum = null;
 				if (tmpStr != null)
 				{
-					String phoneNum = tmpStr.substring(tmpStr.indexOf(Protocal.PHONE_NUM) + Protocal.PHONE_NUM.length());
+					phoneNum = tmpStr.substring(tmpStr.indexOf(Protocol.PHONE_NUM) + Protocol.PHONE_NUM.length());
 					System.out.println(phoneNum);
 					if (phoneNum.matches("\\d+"))
 					{
-						pw.println(Protocal.WHISPER+Protocal.PHONE_NUM + phoneNum + Protocal.MSG + "成功连接到服务器,你的ip：" + ip);
+						pw.println(Protocol.WHISPER + Protocol.PHONE_NUM + phoneNum + Protocol.MSG + "成功连接到服务器,你的ip：" + ip);
+						System.out.println("vec_u添加了"+phoneNum);
+						vec_u.add(new User(phoneNum));
 					}
 				}
 				String string = ip + "进入了房间,总人数" + vec.size() + "个";
 				ServerUI.jTextArea1_message.append(string + "\r\n");
+				System.out.println(string);
 //				pw.println(string);
-				broadcast(Protocal.BROADCAST + Protocal.MSG + string);
+				broadcast(Protocol.BROADCAST + Protocol.MSG + string);
 				String str = null;
 				while (true)
 				{
@@ -139,9 +144,12 @@ public class Server
 						if (str.equals("over"))
 						{
 							vec.remove(s);
+							vec_u.remove(new User(phoneNum));
+							System.out.println("删除了"+phoneNum+",size:"+vec_u.size());
 							String msg = ip + "离开了房间," + "还有" + vec.size() + "个";
 							ServerUI.jTextArea1_message.append(msg + "\r\n");
-							broadcast(Protocal.BROADCAST + Protocal.MSG + msg);
+							System.out.println(msg);
+							broadcast(Protocol.BROADCAST + Protocol.MSG + msg);
 							br.close();
 							s.close();
 							pw.close();
@@ -149,6 +157,17 @@ public class Server
 						} else
 						{
 							ServerUI.jTextArea1_message.append(ip + ":" + str + "\r\n");
+							System.out.println(ip + ":" + str);
+							if (checkIsRegistered(str))
+							{
+								pw.println(Protocol.IS_REGISTERED + "true");
+							} else
+							{
+								pw.println(Protocol.IS_REGISTERED + "false");
+								System.out.println("该人没有在Vector里面");
+								if(phoneNum != null)
+									pw.println(Protocol.WHISPER + Protocol.PHONE_NUM +phoneNum+Protocol.MSG + "该人木有在线，你该发短信勒~( ⊙ o ⊙ )");
+							}
 							broadcast(str);
 						}
 					}
@@ -156,16 +175,19 @@ public class Server
 			} catch (SocketException e)
 			{
 				ServerUI.jTextArea1_message.append(ip + "断开连接\r\n");
+				System.out.println(ip + "断开连接");
 				vec.remove(s);
 				e.printStackTrace();
 			} catch (UnsupportedEncodingException e)
 			{
 				// TODO Auto-generated catch block
+				vec.remove(s);
 				e.printStackTrace();
 			} catch (IOException e)
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				vec.remove(s);
 			} finally
 			{
 				try
@@ -187,6 +209,35 @@ public class Server
 		}
 	}
 
+	private boolean checkIsRegistered(String str)
+	{
+		if (str.startsWith(Protocol.WHISPER))
+		{
+			int num1 = str.indexOf(Protocol.PHONE_NUM) + Protocol.PHONE_NUM.length();
+			int num2 = str.indexOf(Protocol.MSG);
+			String temp = str.substring(num1, num2);
+			System.out.println("号码"+temp);
+			String numberList[] = temp.split("&");
+			for (int i = 0; i < numberList.length; i++)
+			{
+				temp = new StringBuffer(str.substring(str.indexOf(Protocol.MSG) + Protocol.MSG.length())).toString();
+				System.out.println("numberList[1]"+ numberList[1]);
+				if (numberList.length != 1)
+				{
+					for (User user : vec_u)
+					{
+						System.out.println(user);
+						if (numberList[1].equals(user.getPhoneNumber()))
+						{
+							return true;
+						}
+					}
+				}
+				System.out.println(numberList[i]);
+			}
+		}
+		return false;
+	}
 	private void broadcast(String str) throws IOException
 	{
 		for (int i = 0; i < vec.size(); i++)
