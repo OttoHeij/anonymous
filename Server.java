@@ -127,8 +127,9 @@ public class Server
 					if (phoneNum.matches("\\d+"))
 					{
 						pw.println(Protocol.WHISPER + Protocol.PHONE_NUM + phoneNum + Protocol.MSG + "成功连接到服务器,你的ip：" + ip);
-						System.out.println("vec_u添加了"+phoneNum);
+						System.out.println("vec_u添加了" + phoneNum);
 						vec_u.add(new User(phoneNum));
+						sendAllUsersToClient();
 					}
 				}
 				String string = ip + "进入了房间,总人数" + vec.size() + "个";
@@ -145,11 +146,12 @@ public class Server
 						{
 							vec.remove(s);
 							vec_u.remove(new User(phoneNum));
-							System.out.println("删除了"+phoneNum+",size:"+vec_u.size());
+							System.out.println("删除了" + phoneNum + ",size:" + vec_u.size());
 							String msg = ip + "离开了房间," + "还有" + vec.size() + "个";
 							ServerUI.jTextArea1_message.append(msg + "\r\n");
 							System.out.println(msg);
 							broadcast(Protocol.BROADCAST + Protocol.MSG + msg);
+							sendAllUsersToClient();
 							br.close();
 							s.close();
 							pw.close();
@@ -165,8 +167,8 @@ public class Server
 							{
 								pw.println(Protocol.IS_REGISTERED + "false");
 								System.out.println("该人没有在Vector里面");
-								if(phoneNum != null)
-									pw.println(Protocol.WHISPER + Protocol.PHONE_NUM +phoneNum+Protocol.MSG + "该人木有在线，你该发短信勒~( ⊙ o ⊙ )");
+								if (phoneNum != null)
+									pw.println(Protocol.WHISPER + Protocol.PHONE_NUM + phoneNum + Protocol.MSG + "该人木有在线，你该发短信勒~( ⊙ o ⊙ )");
 							}
 							broadcast(str);
 						}
@@ -207,6 +209,23 @@ public class Server
 				}
 			}
 		}
+		/**
+		 * 发送所有在线号码给科幻段
+		 * @throws IOException 
+		 * @throws UnsupportedEncodingException 
+		 */
+		private void sendAllUsersToClient() throws UnsupportedEncodingException, IOException
+		{
+			// TODO Auto-generated method stub
+			// 发送所有在线号码
+				String userList = Protocol.UESR_LIST;
+				for (User user : vec_u)
+				{
+					userList += user.getPhoneNumber() + "#";
+				}
+				userList = userList.substring(0,userList.length() - 1);
+				broadcast(userList);
+		}
 	}
 
 	private boolean checkIsRegistered(String str)
@@ -216,12 +235,12 @@ public class Server
 			int num1 = str.indexOf(Protocol.PHONE_NUM) + Protocol.PHONE_NUM.length();
 			int num2 = str.indexOf(Protocol.MSG);
 			String temp = str.substring(num1, num2);
-			System.out.println("号码"+temp);
+			System.out.println("号码" + temp);
 			String numberList[] = temp.split("&");
 			for (int i = 0; i < numberList.length; i++)
 			{
 				temp = new StringBuffer(str.substring(str.indexOf(Protocol.MSG) + Protocol.MSG.length())).toString();
-				System.out.println("numberList[1]"+ numberList[1]);
+				System.out.println("numberList[1]" + numberList[1]);
 				if (numberList.length != 1)
 				{
 					for (User user : vec_u)
